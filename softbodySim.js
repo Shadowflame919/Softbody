@@ -108,6 +108,21 @@ class SoftbodySim {
 			}
 		}
 
+		/*
+		// Rotate object on spot
+		if (this.particles.length > 0) {
+			let highestParticle = 0;
+			let lowestParticle = 0;
+			for (let i=1; i<this.particles.length; i++) {
+				if (this.particles[i].pos.y > this.particles[highestParticle].pos.y) highestParticle = i;
+				if (this.particles[i].pos.y < this.particles[lowestParticle].pos.y) lowestParticle = i;
+			}
+			this.particles[highestParticle].force.x += 10;
+			this.particles[lowestParticle].force.x -= 10;
+		}
+		*/
+
+
 		// Update particle velocity and position (also gravity)
 		for (let i=0; i<this.particles.length; i++) {
 			this.particles[i].update(dt);
@@ -141,16 +156,13 @@ class SoftbodySim {
 
 		} else if (main.keyDown["KeyI"]) {
 
-			this.spawnCircle(50);
+			this.spawnCircle(12);
 
 		} else if (main.keyDown["KeyU"]) {
 
 			let p1 = new Particle(new Point().mousePos(), 3);
 			let p2 = new Particle(new Point().mousePos().add(new Point(1, 0)), 3);
 			let p3 = new Particle(new Point().mousePos().add(new Point(0, -1)), 3);
-			//let p3 = new Particle(new Point().mousePos().add(new Point(1/1.41, 1/1.41)), 3);
-			//let p2 = new Particle(new Point().mousePos().add(new Point(3, 0)), 3);
-			//let p3 = new Particle(new Point().mousePos().add(new Point(0, -5)), 3);
 
 			this.particles.push(p1);
 			this.particles.push(p2);
@@ -159,34 +171,44 @@ class SoftbodySim {
 			this.springs.push(new Spring(p1, p2, 1, 100));
 			this.springs.push(new Spring(p1, p3, 1, 100));
 			this.springs.push(new Spring(p2, p3, 1.41, 100));
-			//this.springs.push(new Spring(p1, p2, 3));
-			//this.springs.push(new Spring(p1, p3, 4));
-			//this.springs.push(new Spring(p2, p3, 5));
 
 		} else {
 			this.spawnCircle(3);
 		}
 	}
 	spawnCircle(verticeCount) {
-		let sideLength = Math.sqrt(3/verticeCount);
-		let radius = verticeCount*sideLength/(2*Math.PI);
+		let radius = 2;
+
+		let particleList = [];
+
 		for (var i=0; i<verticeCount; i++) {
 			let angle = i/verticeCount * Math.PI * 2;
-			this.particles.push(
+			particleList.push(
 				new Particle(new Point().mousePos().add(new Point(
 					radius*Math.cos(angle), 
 					radius*Math.sin(angle)
 				)), 1)
 			);
+			this.particles.push(particleList[i]);
 		}
 
-		// Connect with springs
+		// Connect adjacent particles with springs to retain individual side length
 		for (var i=0; i<verticeCount; i++) {
-			let index1 = this.particles.length - verticeCount + i;
-			let index2 = this.particles.length - verticeCount + (i+1)%verticeCount;
-			this.springs.push(new Spring(this.particles[index1], this.particles[index2], sideLength, 100));
+			let index1 = i;
+			let index2 = (i+1)%verticeCount;
+			let springLength = particleList[index1].distFrom(particleList[index2]);
+			this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 100));
 		}
 
+		// Connect particles one apart to retain side length shape/structure
+		for (var i=0; i<verticeCount; i++) {
+			let index1 = i;
+			let index2 = (i+3)%verticeCount;
+			let springLength = particleList[index1].distFrom(particleList[index2]);
+			this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 1000));
+		}
+
+		/*
 		// Connect middle to springs
 		this.particles.push(
 			new Particle(new Point().mousePos(), 1)
@@ -195,7 +217,7 @@ class SoftbodySim {
 			let index1 = this.particles.length - verticeCount - 1 + i;
 			let index2 = this.particles.length - 1;
 			this.springs.push(new Spring(this.particles[index1], this.particles[index2], radius, 100));
-		}
+		}*/
 
 	}
 }
@@ -311,6 +333,9 @@ class Particle {
 		if (distBetween >= 1) return;
 		this.force.x += this.particleRepel * particle.particleRepel * ((this.pos.x - particle.pos.x) / distBetween) * 1/distBetween**2;
 		this.force.y += this.particleRepel * particle.particleRepel * ((this.pos.y - particle.pos.y) /  distBetween) * 1/distBetween**2;
+	}
+	distFrom(particle) {
+		return this.pos.distFrom(particle.pos);
 	}
 }
 
