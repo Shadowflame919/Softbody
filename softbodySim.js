@@ -63,11 +63,6 @@ class SoftbodySim {
 			//new Spring(this.particles[0], this.particles[2], 1)
 		];
 
-		// Force to preserve angles between particles
-		this.anglePreservers = [
-
-		];
-
 		this.boundary = new Boundary(this.particles, [1,15,1,9], 100);
 
 	}
@@ -103,11 +98,6 @@ class SoftbodySim {
 		// Apply spring force producer
 		for (let i=0; i<this.springs.length; i++) {
 			this.springs[i].update();
-		}
-
-		// Apply angle preservers force producer
-		for (let i=0; i<this.anglePreservers.length; i++) {
-			this.anglePreservers[i].update();
 		}
 
 		// Apply particle force producer between each particleo
@@ -150,7 +140,9 @@ class SoftbodySim {
 			}
 
 		} else if (main.keyDown["KeyI"]) {
-			this.spawnCircle(10);
+
+			this.spawnCircle(50);
+
 		} else if (main.keyDown["KeyU"]) {
 
 			let p1 = new Particle(new Point().mousePos(), 3);
@@ -164,16 +156,12 @@ class SoftbodySim {
 			this.particles.push(p2);
 			this.particles.push(p3);
 
-			this.springs.push(new Spring(p1, p2, 1));
-			this.springs.push(new Spring(p1, p3, 1));
-			this.springs.push(new Spring(p2, p3, 1.41));
+			this.springs.push(new Spring(p1, p2, 1, 100));
+			this.springs.push(new Spring(p1, p3, 1, 100));
+			this.springs.push(new Spring(p2, p3, 1.41, 100));
 			//this.springs.push(new Spring(p1, p2, 3));
 			//this.springs.push(new Spring(p1, p3, 4));
 			//this.springs.push(new Spring(p2, p3, 5));
-
-			this.anglePreservers.push(new AnglePreserver(p1, p2, p3, Math.PI/2));
-			this.anglePreservers.push(new AnglePreserver(p2, p1, p3, Math.PI/4));
-			this.anglePreservers.push(new AnglePreserver(p3, p1, p2, Math.PI/4));
 
 		} else {
 			this.spawnCircle(3);
@@ -196,7 +184,7 @@ class SoftbodySim {
 		for (var i=0; i<verticeCount; i++) {
 			let index1 = this.particles.length - verticeCount + i;
 			let index2 = this.particles.length - verticeCount + (i+1)%verticeCount;
-			this.springs.push(new Spring(this.particles[index1], this.particles[index2], sideLength));
+			this.springs.push(new Spring(this.particles[index1], this.particles[index2], sideLength, 100));
 		}
 
 		// Connect middle to springs
@@ -206,7 +194,7 @@ class SoftbodySim {
 		for (var i=0; i<verticeCount; i++) {
 			let index1 = this.particles.length - verticeCount - 1 + i;
 			let index2 = this.particles.length - 1;
-			this.springs.push(new Spring(this.particles[index1], this.particles[index2], radius, 2));
+			this.springs.push(new Spring(this.particles[index1], this.particles[index2], radius, 100));
 		}
 
 	}
@@ -280,7 +268,7 @@ class Particle {
 
 		this.gravity = -2;
 
-		this.particleRepel = 0.1;
+		this.particleRepel = 0;//0.1;
 
 
 		this.renderRadius = renderRadius;
@@ -300,7 +288,7 @@ class Particle {
 	update(dt) {
 
 		// Apply gravitational force
-		//this.force.y += this.gravity * this.mass;
+		this.force.y += this.gravity * this.mass;
 
 		// Apply force onto particles
 		this.vel.x += this.force.x / this.mass * dt;
@@ -387,7 +375,7 @@ class Spring {
 		Springs contain pointers to particles	
 
 	*/
-	constructor(particle1, particle2, length, strength=5) {
+	constructor(particle1, particle2, length, strength=10) {
 		// Force producer
 
 		this.particle1 = particle1;
@@ -413,73 +401,14 @@ class Spring {
 
 		let distBetween = Math.hypot(this.particle1.pos.x-this.particle2.pos.x, this.particle1.pos.y-this.particle2.pos.y);
 
-		let forceStrength = this.strength * (this.length - distBetween  +  1/distBetween - 1/this.length);
+		//let forceStrength = this.strength * (this.length - distBetween  +  1/distBetween - 1/this.length);
+		let forceStrength = this.strength * (this.length - distBetween);
 
 		this.particle1.force.x += ((this.particle1.pos.x - this.particle2.pos.x) / distBetween) * forceStrength;
 		this.particle1.force.y += ((this.particle1.pos.y - this.particle2.pos.y) / distBetween) * forceStrength;
 
 		this.particle2.force.x -= ((this.particle1.pos.x - this.particle2.pos.x) / distBetween) * forceStrength;
 		this.particle2.force.y -= ((this.particle1.pos.y - this.particle2.pos.y) / distBetween) * forceStrength;
-
-	}
-}
-
-class AnglePreserver {
-	/*
-		Connects 3 particles together with an angle
-		Each angle preserver has a parent particle and two children
-		The preserver attempts to preserve the acute angle between the two particles by applying a (linear) torque
-
-	*/
-	constructor(particle1, particle2, particle3, angle, strength=1) {
-		// Force producer
-		this.particle1 = particle1	// Middles particle of which angle subtends towards
-		this.particle2 = particle2;
-		this.particle3 = particle3;
-
-		// The preffered length for the spring
-		this.angle = angle;
-
-		// The strength of the spring (force to pull/push back to preferred length)
-		this.strength = strength;
-
-	}
-	render() {			
-		//let renderPos1 = this.particle1.pos.renderPos();
-		//let renderPos2 = this.particle2.pos.renderPos();
-		//drawLine([renderPos1, renderPos2], "black", 2);
-	}
-	update() {
-
-		// Angle is a linear force based on angle between the particles
-		let vec1 = this.particle1.pos.sub(this.particle2.pos);
-		let vec2 = this.particle1.pos.sub(this.particle3.pos);
-		let angleBetweenParticles = - vec1.angleFrom(vec2);
-
-		//console.log(vec1, vec2, angleBetweenParticles)
-
-		if (angleBetweenParticles < 0) {
-			angleBetweenParticles = Math.PI + angleBetweenParticles;
-			//angleBetweenParticles = Math.PI/2 + (Math.PI/2 - (-angleBetweenParticles));
-		}
-
-		// Torque based preservation means force gets weaker as particles are further apart
-		let forceStrength = (angleBetweenParticles - this.angle) * this.strength;
-
-
-		//console.log(this.angle, angleBetweenParticles, forceStrength);
-
-		// Force applied at a normal to particles
-		// Fx = Tx * 1/d = Tcos(a) * 1/N = T * Nx/N * 1/N = T * Nx / N^2 = T * Nx / (Nx^2 + Ny^2)
-		let forceStrength2 = forceStrength / Math.sqrt(vec1.x*vec1.x + vec1.y*vec1.y);
-		this.particle2.force.x += forceStrength2 * vec1.x;
-		this.particle2.force.y += forceStrength2 * vec1.y;
-
-		let forceStrength3 = forceStrength / Math.sqrt(vec2.x*vec2.x + vec2.y*vec2.y);
-		this.particle3.force.x += forceStrength3 * vec2.x;
-		this.particle3.force.y += forceStrength3 * vec2.y;
-
-		//console.log(Math.sqrt((forceStrength2 * vec1.x)**2 + (forceStrength2 * vec1.y)**2), Math.sqrt((forceStrength3 * vec2.x)**2 + (forceStrength3 * vec2.y)**2))
 
 	}
 }
