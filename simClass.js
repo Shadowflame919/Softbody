@@ -39,8 +39,11 @@ class SimClass {
 		this.sim.spawnParticle();
 
 	}
-	testMouseDown() {}
+	testMouseDown() {
 
+		this.sim.dragParticle();
+
+	}
 	render() {
 		// Render mode specific buttons
 		for (let i in this.buttons) {	
