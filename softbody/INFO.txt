@@ -1,0 +1,34 @@
+	
+
+Two particles have a connection
+A connection is simply a preffered distance between one another
+Too far apart and they will be attracted, too close together and they will repel
+
+Could use  F = -(1/x + x - 2)  as the force formula
+This follows the spring formula F=-kx for large values and for small values the force increases rapidly as distance approaches zero
+
+Something like y=x-d is not possible because the distance between the points cannot be negative
+
+
+
+
+Force producer which keeps the angle between edges the same as how they started
+
+Someone applied the particle-spring method to create a good softbody sim
+https://www.youtube.com/watch?v=S95oZXSeKvE
+
+
+
+Apply damping force better
+Have the damping force inside of the softbody rather than an extenal force applied to each particles velocity
+Have the springs themselves causes this damping force, as a spring changes size, apply a force in the opposite direction
+This means if a spring was increasing in size due to kinetic energy, a force would apply in the opposite direction
+
+Also add deformability
+If a spring extends too far it will permantently change its length
+
+Friction?
+Particle collision with springs
+
+Try out different softbody types likes ropes (with fixed points)
+Also this allows for an easy double, triple etc pendulum for my reinforcement learner to balance
