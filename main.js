@@ -29,7 +29,7 @@ class Main {
 
 		// List of modes
 		this.modeList = [
-			new SimClass()
+			new Softbody_Mode()
 		];
 
 		this.mode = this.modeList[0];

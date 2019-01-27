@@ -1,11 +1,10 @@
 
 /*
 
-	The home page for GAN maker program
 
 */
 
-class SimClass {
+class Softbody_Mode {
 	constructor() {
 
 		this.name = "Sim";
@@ -36,12 +35,12 @@ class SimClass {
 			if (this.buttons[i].testForClick()) break;
 		}
 
-		this.sim.spawnParticle();
+		this.sim.onMouseClick();
 
 	}
 	testMouseDown() {
 
-		this.sim.dragParticle();
+		this.sim.onMouseDown();
 
 	}
 	render() {

@@ -22,6 +22,10 @@ class Spring {
 		this.strength = strength;
 
 		this.colour = colour
+
+
+		this.oldLength = this.length;
+
 	}
 	render() {			
 		let renderPos1 = this.particle1.pos.renderPos();
@@ -38,6 +42,14 @@ class Spring {
 
 		//let forceStrength = this.strength * (this.length - distBetween  +  1/distBetween - 1/this.length);
 		let forceStrength = this.strength * (this.length - distBetween);
+
+		if (distBetween > this.length && distBetween < this.oldLength) {
+			forceStrength *= 0.2;
+		}
+		if (distBetween < this.length && distBetween > this.oldLength) {
+			forceStrength *= 0.2;
+		}
+		this.oldLength = distBetween;
 
 		this.particle1.force.x += ((this.particle1.pos.x - this.particle2.pos.x) / distBetween) * forceStrength;
 		this.particle1.force.y += ((this.particle1.pos.y - this.particle2.pos.y) / distBetween) * forceStrength;

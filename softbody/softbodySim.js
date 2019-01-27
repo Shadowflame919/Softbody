@@ -35,10 +35,12 @@ class SoftbodySim {
 		// Background rectangle
 		drawRect(this.renderRect, "black", 2, "grey");
 
+		// Render springs
 		for (let i=0; i<this.springs.length; i++) {
 			this.springs[i].render();
 		}
 
+		// Render particles
 		for (let i=0; i<this.particles.length; i++) {
 			this.particles[i].render();
 		}
@@ -98,7 +100,19 @@ class SoftbodySim {
 		}
 
 	}
-	dragParticle() {
+	onMouseClick() {	// Runs when the mouse is clicked (lifted after being pressed down)
+		// Only spawn if pressed inside simulation rect
+		if (pointInRect(main.mousePos, this.renderRect)) {
+			this.spawnParticle();
+		}
+	}
+	onMouseDown() {		// Runs when mouse button goes down (not repeated)
+		this.selectDraggingParticle();
+	}
+
+
+
+	selectDraggingParticle() {		// Selects the particle to begin dragging based on mouse position
 
 		let closestDist = Infinity;
 		for (let i=0; i<this.particles.length; i++) {
@@ -111,9 +125,6 @@ class SoftbodySim {
 
 	}
 	spawnParticle(rect=this.renderRect) {
-
-		// Don't spawn if not inside render rect
-		if (!pointInRect(main.mouseDown, this.renderRect)) return;
 
 		if (main.keyDown["KeyP"]) {
 

@@ -49,7 +49,7 @@ class Particle {
 		this.pos.y += this.vel.y * dt;
 
 		// Simulation walls
-		let bounceLoss = 0.5;
+		let bounceLoss = 1;
 		if (this.pos.y <= 0) {
 			this.pos.y = -this.pos.y;
 			this.vel.y *= -bounceLoss;
