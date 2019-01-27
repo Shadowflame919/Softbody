@@ -44,10 +44,10 @@ class Spring {
 		let forceStrength = this.strength * (this.length - distBetween);
 
 		if (distBetween > this.length && distBetween < this.oldLength) {
-			forceStrength *= 0.2;
+			forceStrength *= 0.5;
 		}
 		if (distBetween < this.length && distBetween > this.oldLength) {
-			forceStrength *= 0.2;
+			forceStrength *= 0.5;
 		}
 		this.oldLength = distBetween;
 

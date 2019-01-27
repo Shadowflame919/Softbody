@@ -56,7 +56,7 @@ class SoftbodySim {
 		// Apply particle mouse dragging force
 		if (main.mouseDown.state == false) this.draggingParticle = undefined;
 		if (this.draggingParticle != undefined) {
-			let draggingSpring = new Spring(this.draggingParticle, new Particle(new Point().mousePos()), 0, 20);
+			let draggingSpring = new Spring(this.draggingParticle, new Particle(new Point().mousePos()), 0, 50);
 			draggingSpring.update();
 		}
 
@@ -148,7 +148,7 @@ class SoftbodySim {
 
 		} else if (main.keyDown["KeyI"]) {
 
-			this.spawnCircle(12);
+			this.spawnCircle(7);
 
 		} else if (main.keyDown["KeyU"]) {
 
@@ -160,9 +160,9 @@ class SoftbodySim {
 			this.particles.push(p2);
 			this.particles.push(p3);
 
-			this.springs.push(new Spring(p1, p2, 1, 100));
-			this.springs.push(new Spring(p1, p3, 1, 100));
-			this.springs.push(new Spring(p2, p3, 1.41, 100));
+			this.springs.push(new Spring(p1, p2, 1, 500));
+			this.springs.push(new Spring(p1, p3, 1, 500));
+			this.springs.push(new Spring(p2, p3, 1.41, 500));
 
 		} else if (main.keyDown["KeyY"]) {
 			this.spawnSquare(2);
@@ -188,7 +188,7 @@ class SoftbodySim {
 			let index1 = i;
 			let index2 = (i+1)%verticeCount;
 			let springLength = particleList[index1].distFrom(particleList[index2]);
-			this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 100, "red"));
+			this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 500, "red"));
 		}
 
 		if (verticeCount > 3) {
@@ -197,7 +197,7 @@ class SoftbodySim {
 				let index1 = i;
 				let index2 = (i+2)%verticeCount;
 				let springLength = particleList[index1].distFrom(particleList[index2]);
-				this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 200, "rgba(0,0,0,0.2)"));
+				this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 500, "rgba(0,0,0,0.2)"));
 			}
 		}
 
@@ -214,14 +214,18 @@ class SoftbodySim {
 
 	}
 	spawnSquare(sideLength) {
-		let sideSize = 2;
+		let sideSize = sideLength;
 		let particleList = [];
+		let squareCentre = new Point().mousePos();
 
 		for (var y=0; y<sideLength; y++) {
 			for (var x=0; x<sideLength; x++) {
 				if (y!=0 && y!=sideLength-1 && x!=0 && x!=sideLength-1) continue;
 
-				let pos = new Point().mousePos().add(new Point( (x/sideLength-0.5)*sideSize, (y/sideLength-0.5)*sideSize ));
+				let pos = squareCentre.add(new Point( 
+					(x/sideLength-0.5)*sideSize, 
+					(y/sideLength-0.5)*sideSize 
+				));
 				let particle = new Particle(pos, 3);
 
 				particleList.push(particle);
@@ -259,50 +263,21 @@ class SoftbodySim {
 			}
 		}
 
+		// Connect the points with springs
 		for (var i=0; i<particleList.length; i++) {
 			for (var j=0; j<i; j++) {
 
 				let index1 = i;
 				let index2 = j;
 				let springLength = particleList[index1].distFrom(particleList[index2]);
-				this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 500, "rgba(0,0,0,0.2)"));
+
+				let springColour = "red";
+				//if (springLength > sideLength) springColour = "rgba(0,0,0,0.2)";
+
+				this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 500, springColour));
 
 			}
 		}
-
-
-		/*for (var s=0; s<4; s++) {
-			for (var i=0; i<sideLength; i++) {
-				let sideDist = sideSize * (i/sideLength - 0.5);
-				let sidePoint = new Point().mousePos();
-
-				if (s==0) sidePoint = sidePoint.add(new Point(sideDist, 0.5*sideSize));
-				else if (s==1) sidePoint = sidePoint.add(new Point(0.5*sideSize, -sideDist));
-				else if (s==2) sidePoint = sidePoint.add(new Point(-sideDist, -0.5*sideSize));
-				else if (s==3) sidePoint = sidePoint.add(new Point(-0.5*sideSize, sideDist));
-
-				particleList.push(new Particle(sidePoint, 3));
-				this.particles.push(particleList[s*sideLength + i]);
-			}
-		}
-
-		// Connect adjacent particles with springs to retain individual side length
-		for (var i=0; i<particleList.length; i++) {
-			let index1 = i;
-			let index2 = (i+1)%particleList.length;
-			let springLength = particleList[index1].distFrom(particleList[index2]);
-			this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 100, "red"));
-		}
-		
-		if (sideLength > 3) {
-			// Connect particles one apart to retain side length shape/structure
-			for (var i=0; i<particleList.length; i++) {
-				let index1 = i;
-				let index2 = (i+4)%particleList.length;
-				let springLength = particleList[index1].distFrom(particleList[index2]);
-				this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 100, "rgba(0,0,0,0.2)"));
-			}
-		}*/
 
 	}
 }
