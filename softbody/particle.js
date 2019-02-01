@@ -9,10 +9,10 @@ class Particle {
 
 		this.mass = 1;
 
-		this.gravity = -2;
+		this.gravity = -3;		// Acceleration per second
+		this.airFriction = 0.1;		// Multiple of velocity reduction per second
 
 		this.particleRepel = 0.1;
-
 
 		this.renderRadius = renderRadius;
 		this.renderColour = "blue";
@@ -30,41 +30,60 @@ class Particle {
 	}
 	update(dt) {
 
+		/*
+			Current system is split up into 
+				adding starting force, 
+				then change particle velocity and move particle
+				then applying forces again to correct particle
+
+			A possible fix is to move particle at the beginning of each frame and storing the force until the next update
+				First change particle velocity and move particle
+				Then sum up default forces on particle (gravity/air-friction/springs)
+				Then sum up forces which are a result of new position and require a positional correction
+
+		*/
+
+
+
 		// Apply gravitational force
 		this.force.y += this.gravity * this.mass;
+
+		// Apply air friction force
+		this.force.x -= this.vel.x * this.airFriction;
+		this.force.y -= this.vel.y * this.airFriction;
 
 		// Apply force onto particles
 		this.vel.x += this.force.x / this.mass * dt;
 		this.vel.y += this.force.y / this.mass * dt;
 
-		// Reset force
-		this.force.set(0,0);
-
-		// Friction to reduce energy in system
-		//this.vel.x *= 0.99;
-		//this.vel.y *= 0.99;
-
 		// Move particle based on velocity
 		this.pos.x += this.vel.x * dt;
 		this.pos.y += this.vel.y * dt;
+
+		// Reset force for next calculation
+		this.force.set(0,0);
 
 		// Simulation walls
 		let bounceLoss = 1;
 		if (this.pos.y <= 0) {
 			this.pos.y = -this.pos.y;
 			this.vel.y *= -bounceLoss;
+			this.vel.x *= 0.8;
+		}
+		if (this.pos.y >= 12.5) {
+			this.pos.y = 2*12.5 - this.pos.y;
+			this.vel.y *= -bounceLoss;
+			this.vel.x *= 0.8;
 		}
 		if (this.pos.x <= 0) {
 			this.pos.x = -this.pos.x;
 			this.vel.x *= -bounceLoss;
+			this.vel.y *= 0.8;
 		}
-		if (this.pos.x >= 16) {
-			this.pos.x = 2*16 - this.pos.x;
+		if (this.pos.x >= 20) {
+			this.pos.x = 2*20 - this.pos.x;
 			this.vel.x *= -bounceLoss;
-		}
-		if (this.pos.y >= 10) {
-			this.pos.y = 2*10 - this.pos.y;
-			this.vel.y *= -bounceLoss;
+			this.vel.y *= 0.8;
 		}
 
 	}

@@ -33,13 +33,10 @@ class Button {
 
 	}
 	testForClick() {	// Tests for click, return true if button was pressed
-		// If mouse did not drag during click, button can be pressed
-		if (main.mousePos.x == main.mouseDown.x && main.mousePos.y == main.mouseDown.y) {
-			// If mouse actually inside button rect
-			if (pointInRect(main.mousePos, this.rect)) {
-				this.action();
-				return true;
-			}
+		// Button only pressed iff mouse was pressed inside button, and was lifted inside button
+		if (pointInRect(main.mouseDown, this.rect) && pointInRect(main.mousePos, this.rect)) {
+			this.action();
+			return true;
 		}
 		return false;
 	}

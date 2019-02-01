@@ -145,7 +145,7 @@ document.body.append(uploadElement);
 // == User Event Listeners ==
 
 // Detects when mouse button is pressed into down state
-canvas.addEventListener("mousedown", function(evt) {
+document.addEventListener("mousedown", function(evt) {
 	var canvasRect = canvas.getBoundingClientRect();
 	main.mouseDown = {
 		x: evt.clientX - canvasRect.left,
@@ -163,7 +163,7 @@ canvas.addEventListener("mousedown", function(evt) {
 });
 
 // Detects when mouse button is released
-canvas.addEventListener("mouseup", function(evt) {
+document.addEventListener("mouseup", function(evt) {
 	var canvasRect = canvas.getBoundingClientRect();
 	main.mousePos = {
 		x: evt.clientX - canvasRect.left,
@@ -180,7 +180,7 @@ canvas.addEventListener("mouseup", function(evt) {
 });
 
 // Detects when mouse cursor has mover
-canvas.addEventListener('mousemove', function(evt) {
+document.addEventListener('mousemove', function(evt) {
 	var canvasRect = canvas.getBoundingClientRect();
 	main.mousePos = {	// Position relative to top left corner
 		x: evt.clientX - canvasRect.left,

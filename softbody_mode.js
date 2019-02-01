@@ -10,13 +10,41 @@ class Softbody_Mode {
 		this.name = "Sim";
 
 		this.buttons = [
-			//new Button({
-			//	text: "AutoTrain: Off",
-			//	rect: {x:50, y:150, h:35, w:190},
-			//	action: function() {
-			//		main.mode.toggleAutoTrain();
-			//	}
-			//}),
+			new Button({
+				text: "Dragging",
+				rect: {x:900, y:280, h:30, w:150},
+				action: ()=>{
+					this.sim.mouseAction = "dragging";
+				}
+			}),
+			new Button({
+				text: "Triangle",
+				rect: {x:900, y:320, h:30, w:150},
+				action: ()=>{
+					this.sim.mouseAction = "spawn triangle";
+				}
+			}),
+			new Button({
+				text: "Square",
+				rect: {x:900, y:360, h:30, w:150},
+				action: ()=>{
+					this.sim.mouseAction = "spawn square";
+				}
+			}),
+			new Button({
+				text: "Pentagon",
+				rect: {x:900, y:400, h:30, w:150},
+				action: ()=>{
+					this.sim.mouseAction = "spawn pentagon";
+				}
+			}),
+			new Button({
+				text: "Particle",
+				rect: {x:900, y:440, h:30, w:150},
+				action: ()=>{
+					this.sim.mouseAction = "spawn particle";
+				}
+			}),
 		];
 
 
@@ -51,7 +79,11 @@ class Softbody_Mode {
 
 		this.sim.render();
 
-		drawText("Particles: " + this.sim.particles.length, 900, 100, 24);
+		drawText("Particles: " + this.sim.particles.length, 900, 100, 18);
+		drawText("Springs: " + this.sim.springs.length, 900, 130, 18);
+
+
+		drawText(this.sim.mouseAction, 900, 250, 18);
 
 	}
 	update() {

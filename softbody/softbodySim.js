@@ -8,26 +8,22 @@ class SoftbodySim {
 	constructor() {
 
 		this.renderRect = {x:40, y:80, w:800, h:500};
-		this.simRect = {x:0, y:0, w:16, h:10};		// All particles are kept within this area
+		this.simRect = {x:0, y:0, w:20, h:12.5};		// All particles are kept within this area
 		//this.visibleRect = {}		// Actual rendering area for simulation
 
 		Point.renderRect = this.renderRect;
 		Point.simRect = this.simRect;
 
 
-		this.particles = [
-			//new Particle(new Point(3,3), 5),
-			//new Particle(new Point(4,3), 5),
-			//new Particle(new Point(3.5,2), 5)
-		];
-
-		this.springs = [
-			//new Spring(this.particles[0], this.particles[1], 1),
-			//new Spring(this.particles[1], this.particles[2], 1),
-			//new Spring(this.particles[0], this.particles[2], 1)
-		];
+		this.particles = [];
+		this.springs = [];
 
 		this.draggingParticle = undefined;
+
+		// Mouse actions
+		// dragging, spawn square, spawn triangle, spawn pentagon
+		this.mouseAction = "dragging";
+
 
 	}
 	render() {
@@ -60,13 +56,6 @@ class SoftbodySim {
 			draggingSpring.update();
 		}
 
-		// Apply gravity force producer
-
-
-		// Apply spring force producer
-		for (let i=0; i<this.springs.length; i++) {
-			this.springs[i].update();
-		}
 
 		/*
 		// Apply particle force producer between each particleo
@@ -77,7 +66,6 @@ class SoftbodySim {
 			}
 		}
 		*/
-
 		
 		// Rotate object on spot
 		/*
@@ -88,11 +76,15 @@ class SoftbodySim {
 				if (this.particles[i].pos.y > this.particles[highestParticle].pos.y) highestParticle = i;
 				if (this.particles[i].pos.y < this.particles[lowestParticle].pos.y) lowestParticle = i;
 			}
-			this.particles[highestParticle].force.x += 1;
-			this.particles[lowestParticle].force.x -= 1;
+			this.particles[highestParticle].force.x += 5;
+			this.particles[lowestParticle].force.x -= 5;
 		}*/
-		
 
+		
+		// Update springs to apply forces on particles
+		for (let i=0; i<this.springs.length; i++) {
+			this.springs[i].update();
+		}
 
 		// Update particle velocity and position (also gravity)
 		for (let i=0; i<this.particles.length; i++) {
@@ -103,11 +95,13 @@ class SoftbodySim {
 	onMouseClick() {	// Runs when the mouse is clicked (lifted after being pressed down)
 		// Only spawn if pressed inside simulation rect
 		if (pointInRect(main.mousePos, this.renderRect)) {
-			this.spawnParticle();
+			this.spawnObject();
 		}
 	}
 	onMouseDown() {		// Runs when mouse button goes down (not repeated)
-		this.selectDraggingParticle();
+		if (this.mouseAction == "dragging" && pointInRect(main.mouseDown, this.renderRect)) {
+			this.selectDraggingParticle();
+		}
 	}
 
 
@@ -124,51 +118,23 @@ class SoftbodySim {
 		}
 
 	}
-	spawnParticle(rect=this.renderRect) {
 
-		if (main.keyDown["KeyP"]) {
+	spawnObject() {
 
+		if (this.mouseAction == "spawn triangle") {
+			this.spawnPolygon(3);
+		} else if (this.mouseAction == "spawn square") {
+			this.spawnPolygon(4);
+		} else if (this.mouseAction == "spawn pentagon") {
+			this.spawnPolygon(5);
+		} else if (this.mouseAction == "spawn particle") {
 			this.particles.push(
 				new Particle(new Point().mousePos())
 			);
-
-		} else if (main.keyDown["KeyO"]) {
-
-			let verticeCount = 10;
-			let radius = 1;
-			for (var i=0; i<verticeCount; i++) {
-				let angle = i/verticeCount * Math.PI * 2;
-				this.particles.push(
-					new Particle(new Point().mousePos().add(new Point(
-						radius*Math.cos(angle), 
-						radius*Math.sin(angle)
-					)))
-				);
-			}
-
-		} else if (main.keyDown["KeyI"]) {
-
-			this.spawnCircle(7);
-
-		} else if (main.keyDown["KeyU"]) {
-
-			let p1 = new Particle(new Point().mousePos(), 3);
-			let p2 = new Particle(new Point().mousePos().add(new Point(1, 0)), 3);
-			let p3 = new Particle(new Point().mousePos().add(new Point(0, -1)), 3);
-
-			this.particles.push(p1);
-			this.particles.push(p2);
-			this.particles.push(p3);
-
-			this.springs.push(new Spring(p1, p2, 1, 500));
-			this.springs.push(new Spring(p1, p3, 1, 500));
-			this.springs.push(new Spring(p2, p3, 1.41, 500));
-
-		} else if (main.keyDown["KeyY"]) {
-			this.spawnSquare(2);
 		}
+
 	}
-	spawnCircle(verticeCount) {
+	spawnPolygon(verticeCount) {
 		let radius = 1;
 		let particleList = [];
 
@@ -178,7 +144,7 @@ class SoftbodySim {
 				new Particle(new Point().mousePos().add(new Point(
 					radius*Math.cos(angle), 
 					radius*Math.sin(angle)
-				)), 1)
+				)), 3)
 			);
 			this.particles.push(particleList[i]);
 		}
@@ -204,80 +170,13 @@ class SoftbodySim {
 		/*
 		// Connect middle to springs
 		this.particles.push(
-			new Particle(new Point().mousePos(), 1)
+			new Particle(new Point().mousePos(), 3)
 		);
 		for (var i=0; i<verticeCount; i++) {
 			let index1 = this.particles.length - verticeCount - 1 + i;
 			let index2 = this.particles.length - 1;
-			this.springs.push(new Spring(this.particles[index1], this.particles[index2], radius, 100));
+			this.springs.push(new Spring(this.particles[index1], this.particles[index2], radius, 500, "rgba(0,0,0,0.1)"));
 		}*/
-
-	}
-	spawnSquare(sideLength) {
-		let sideSize = sideLength;
-		let particleList = [];
-		let squareCentre = new Point().mousePos();
-
-		for (var y=0; y<sideLength; y++) {
-			for (var x=0; x<sideLength; x++) {
-				if (y!=0 && y!=sideLength-1 && x!=0 && x!=sideLength-1) continue;
-
-				let pos = squareCentre.add(new Point( 
-					(x/sideLength-0.5)*sideSize, 
-					(y/sideLength-0.5)*sideSize 
-				));
-				let particle = new Particle(pos, 3);
-
-				particleList.push(particle);
-				this.particles.push(particle);
-
-				/*
-				// Connect with particle above it
-				if (y>0) {
-					let index1 = y*sideLength + x;
-					let index2 = (y-1)*sideLength + x;
-					let springLength = particleList[index1].distFrom(particleList[index2]);
-					this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 100, "red"));
-				}
-
-				if (x>0) {
-					let index1 = y*sideLength + x;
-					let index2 = y*sideLength + x - 1;
-					let springLength = particleList[index1].distFrom(particleList[index2]);
-					this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 100, "red"));
-				}
-
-				if (x>0 && y>0) {
-					let index1 = y*sideLength + x;
-					let index2 = (y-1)*sideLength + x - 1;
-					let springLength = particleList[index1].distFrom(particleList[index2]);
-					this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 1000, "red"));
-				}
-
-				if (y>0 && x<sideLength-1) {
-					let index1 = y*sideLength + x;
-					let index2 = (y-1)*sideLength + x + 1;
-					let springLength = particleList[index1].distFrom(particleList[index2]);
-					this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 1000, "red"));
-				}*/
-			}
-		}
-
-		// Connect the points with springs
-		for (var i=0; i<particleList.length; i++) {
-			for (var j=0; j<i; j++) {
-
-				let index1 = i;
-				let index2 = j;
-				let springLength = particleList[index1].distFrom(particleList[index2]);
-
-				let springColour = "red";
-				//if (springLength > sideLength) springColour = "rgba(0,0,0,0.2)";
-
-				this.springs.push(new Spring(particleList[index1], particleList[index2], springLength, 500, springColour));
-
-			}
-		}
 
 	}
 }
