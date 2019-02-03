@@ -58,7 +58,6 @@ class NavBar {
 		// Mode name in top right
 		drawText(main.mode.name, 1100, 27, 20, "black", "right");
 
-
 		// Render dropdown options
 		let renderTextX = 0;
 		for (let option in this.dropDown) {
@@ -103,6 +102,7 @@ class NavBar {
 
 		// Top navigation bar
 		drawRect(this.navRect, "black", 1);
+		
 
 	}
 	renderDropdown(optionRect) {	// Renders a dropdown for the current selected top option

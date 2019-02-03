@@ -26,6 +26,9 @@ class Spring {
 
 		this.oldLength = this.length;
 
+
+		this.damping = 0.2;
+
 	}
 	render() {			
 		let renderPos1 = this.particle1.pos.renderPos();
@@ -44,10 +47,10 @@ class Spring {
 		let forceStrength = this.strength * (this.length - distBetween);
 
 		if (distBetween > this.length && distBetween < this.oldLength) {
-			forceStrength *= 0.5;
+			forceStrength *= this.damping;
 		}
 		if (distBetween < this.length && distBetween > this.oldLength) {
-			forceStrength *= 0.5;
+			forceStrength *= this.damping;
 		}
 		this.oldLength = distBetween;
 

@@ -117,12 +117,12 @@ var ctx = canvas.getContext('2d');
 var main = new Main();
 main.init();
 
-function mainLoop() {	// Updates program once per frame	
-	main.update();
+function mainLoop(timestamp) {	// Updates program once per frame	
+	main.update(timestamp);
 	main.render();
 	window.requestAnimationFrame(mainLoop);
 }
-mainLoop(0);
+mainLoop();
 
 
 // == Uploading data HTML tag ==

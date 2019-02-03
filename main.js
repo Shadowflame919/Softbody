@@ -24,6 +24,13 @@ class Main {
 
 		this.navBar = new NavBar();
 
+		// FPS variables
+		// The FPS calculated is purely the rate at which the program is rendering, 
+		// 60 is therefore ideal when using requestAnimationFrame
+		this.fps = 0;	// Stores the last fps calculation
+		this.lastFPSTime = 0;	// Last time in milliseconds FPS was calculated
+		this.frameCount = 0;	// Counts how many frames have occured in this second
+
 	}
 	init() {
 
@@ -71,9 +78,20 @@ class Main {
 
 		// Render navigation bar last so that dropdown overlays other screen elements
 		this.navBar.render();
-		
+
+		// Render FPS in top right
+		drawText(main.fps.toFixed(2), 1065, 60, 18, "#AAAAAA");
+
 	}
-	update() {
+	update(timestamp) {
+
+		// Waits until 1 second has passed, then calculates fps in that time and resets for next second
+		this.frameCount++;
+		if (timestamp - this.lastFPSTime >= 1000) {
+			this.fps = 1000 * this.frameCount / (timestamp - this.lastFPSTime);
+			this.frameCount = 0;
+			this.lastFPSTime = timestamp;
+		}
 
 		this.mode.update();
 

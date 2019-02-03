@@ -9,13 +9,16 @@ class Particle {
 
 		this.mass = 1;
 
-		this.gravity = -3;		// Acceleration per second
+		this.gravity = -5;		// Acceleration per second
 		this.airFriction = 0.1;		// Multiple of velocity reduction per second
 
 		this.particleRepel = 0.1;
 
 		this.renderRadius = renderRadius;
 		this.renderColour = "blue";
+
+
+		this.oldPos = this.pos;
 
 	}
 	render() {
@@ -44,13 +47,9 @@ class Particle {
 		*/
 
 
+		// === First update particle position
 
-		// Apply gravitational force
-		this.force.y += this.gravity * this.mass;
-
-		// Apply air friction force
-		this.force.x -= this.vel.x * this.airFriction;
-		this.force.y -= this.vel.y * this.airFriction;
+		this.oldPos = this.pos.copy();
 
 		// Apply force onto particles
 		this.vel.x += this.force.x / this.mass * dt;
@@ -63,28 +62,41 @@ class Particle {
 		// Reset force for next calculation
 		this.force.set(0,0);
 
+
+
+		// === Forces are now added to particle and will be applied next update
+
+		// Apply gravitational force
+		this.force.y += this.gravity * this.mass;
+
+		// Apply air friction force
+		this.force.x -= this.vel.x * this.airFriction;
+		this.force.y -= this.vel.y * this.airFriction;
+
 		// Simulation walls
-		let bounceLoss = 1;
+		let bounceLoss = 0.8;
+		let friction = 0.8;
 		if (this.pos.y <= 0) {
 			this.pos.y = -this.pos.y;
 			this.vel.y *= -bounceLoss;
-			this.vel.x *= 0.8;
+			this.vel.x *= friction;
 		}
 		if (this.pos.y >= 12.5) {
 			this.pos.y = 2*12.5 - this.pos.y;
 			this.vel.y *= -bounceLoss;
-			this.vel.x *= 0.8;
+			this.vel.x *= friction;
 		}
 		if (this.pos.x <= 0) {
 			this.pos.x = -this.pos.x;
 			this.vel.x *= -bounceLoss;
-			this.vel.y *= 0.8;
+			this.vel.y *= friction;
 		}
 		if (this.pos.x >= 20) {
 			this.pos.x = 2*20 - this.pos.x;
 			this.vel.x *= -bounceLoss;
-			this.vel.y *= 0.8;
+			this.vel.y *= friction;
 		}
+
 
 	}
 	repel(particle) {
